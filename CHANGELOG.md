@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.2.1 (November 28, 2025)
+
+- Feature: Base64 image pasting no longer requires the active file to be saved first
+- Docs: Add comprehensive JSDoc comments to config, paster, and shellscript modules
+
 ## 1.2.0 (November 28, 2025)
 
 - Chore: Migrate test infrastructure to `@vscode/test-cli`
