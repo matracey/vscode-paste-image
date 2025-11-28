@@ -31,6 +31,22 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Cache compiled output
+        uses: actions/cache@v4
+        with:
+          path: out
+          key: ${{ runner.os }}-compiled-${{ hashFiles('src/**/*.ts', 'tsconfig.json') }}
+          restore-keys: |
+            ${{ runner.os }}-compiled-
+
+      - name: Cache VS Code test download
+        uses: actions/cache@v4
+        with:
+          path: .vscode-test
+          key: ${{ runner.os }}-vscode-test-${{ hashFiles('package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-vscode-test-
+
       - name: Compile TypeScript
         run: npm run compile
 
@@ -59,8 +75,24 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Cache compiled output
+        uses: actions/cache@v4
+        with:
+          path: out
+          key: ubuntu-compiled-${{ hashFiles('src/**/*.ts', 'tsconfig.json') }}
+          restore-keys: |
+            ubuntu-compiled-
+
       - name: Compile TypeScript
         run: npm run compile
+
+      - name: Cache vsce
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: vsce-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            vsce-${{ runner.os }}-
 
       - name: Install vsce
         run: npm install -g @vscode/vsce
