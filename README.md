@@ -16,7 +16,7 @@ Now you can enable `pasteImage.showFilePathConfirmInputBox` to modify file path 
 2. Open the command palette: `Ctrl+Shift+P` (`Cmd+Shift+P` on Mac)
 3. Type: "Paste Image" or you can use default keyboard binding: `Ctrl+Alt+V` (`Cmd+Alt+V` on Mac).
 4. Image will be saved in the folder that contains current editing file
-5. The relative path will be paste to current editing file 
+5. The relative path will be paste to current editing file
 
 ## Config
 
@@ -24,25 +24,25 @@ Now you can enable `pasteImage.showFilePathConfirmInputBox` to modify file path 
 
     The default image file name.
 
-    The value of this config will be pass to the 'format' function of moment library(a js time manipulation library), you can read document https://momentjs.com/docs/#/displaying/format/ for advanced usage.
+    The value of this config will be pass to the 'format' function of moment library(a js time manipulation library), you can read document <https://momentjs.com/docs/#/displaying/format/> for advanced usage.
 
     And you can use variable:
 
-    - `${currentFileName}`: the current file name with ext.
-    - `${currentFileNameWithoutExt}`: the current file name without ext.
+      - `${currentFileName}`: the current file name with ext.
+      - `${currentFileNameWithoutExt}`: the current file name without ext.
 
     Default value is `Y-MM-DD-HH-mm-ss`.
 
 - `pasteImage.path`
 
     The destination to save image file.
-    
+
     You can use variable:
-    
-    - `${currentFileDir}`: the path of directory that contain current editing file. 
-    - `${projectRoot}`: the path of the project opened in vscode.
-    - `${fileBasename}`: the current file name with ext.
-    - `${fileBasenameNoExtension}`: the current file name without ext.
+
+      - `${currentFileDir}`: the path of directory that contain current editing file.
+      - `${projectRoot}`: the path of the project opened in vscode.
+      - `${fileBasename}`: the current file name with ext.
+      - `${fileBasenameNoExtension}`: the current file name without ext.
 
     Default value is `./`.
 
@@ -93,4 +93,3 @@ If you have some any question or advice, Welcome to [issue](https://github.com/m
 ## License
 
 The extension and source are licensed under the [MIT license](LICENSE.txt).
-
