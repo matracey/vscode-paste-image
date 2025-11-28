@@ -5,6 +5,7 @@ import * as assert from "assert";
 import * as vscode from "vscode";
 import { getShellScript } from "../shellscript";
 import { TextEncoder } from "util";
+import { setClipboardImage } from "./testHelper";
 
 suite("Extension Test Suite (command)", () => {
   vscode.window.showInformationMessage("Start command tests.");
@@ -24,8 +25,7 @@ suite("Extension Test Suite (command)", () => {
     await conf.update("showFilePathConfirmInputBox", false);
     const base64 =
       "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjEuNWRHWFIAAAAMSURBVBhXY2BgYAAAAAQAAVzN/2kAAAAASUVORK5CYII=";
-    const sh = "../src/test/win32 _test_set_clipboard_image.ps1";
-    await script.runScript(sh, [base64]);
+    await setClipboardImage(base64);
   });
 
   test("command vscode-paste-image.pasteImage test", async () => {

@@ -24,9 +24,20 @@ jobs:
           node-version: "20"
           cache: "npm"
 
-      - name: Install xclip (Linux)
+      - name: Install xclip and clipboard manager (Linux)
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y xclip
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xclip xsel
+
+      - name: Set up Homebrew
+        if: runner.os == 'macOS'
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@main
+
+      - name: Install pngpaste (macOS)
+        if: runner.os == 'macOS'
+        run: brew install pngpaste
 
       - name: Install dependencies
         run: npm ci
@@ -52,7 +63,9 @@ jobs:
 
       - name: Run tests (Linux)
         if: runner.os == 'Linux'
-        run: xvfb-run -a npm run test
+        run: |
+          # Start xvfb and keep a persistent xclip process as clipboard manager
+          xvfb-run -a bash -c "xclip -selection clipboard /dev/null & sleep 0.5 && npm run test"
 
       - name: Run tests (macOS/Windows)
         if: runner.os != 'Linux'
