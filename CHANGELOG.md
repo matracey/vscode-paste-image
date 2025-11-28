@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.2.0 (November 28, 2025)
+
+- Chore: Migrate test infrastructure to `@vscode/test-cli`
+- Chore: Upgrade npm dependencies
+- Feat: Add GitHub Actions build, test and release workflow for CI/CD
+
 ## 1.1.9 (June 24, 2021)
 
 - Fix: update README.md
