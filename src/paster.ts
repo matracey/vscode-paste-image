@@ -84,9 +84,9 @@ class Paster {
     const script = (await Base64TextScript.getScript()) || getShellScript();
 
     try {
-      const imageUri = target.getImagePath();
+      const filename = target.getGeneratedImageFileName();
       const imageData = await script.getBase64Image();
-      const context = target.getPasteBase64ImageText(imageUri, imageData);
+      const context = target.getPasteBase64ImageTextByFilename(filename, imageData);
       await target.pasteText(context[0]);
       target.pasteEnd(context[1]);
       console.debug("paste base64 image");
@@ -175,6 +175,23 @@ class PasteTarget {
   }
 
   /**
+   * Renders the configured Base64 paste template using just a filename (no saved file required).
+   */
+  public getPasteBase64ImageTextByFilename(
+    filename: string,
+    base64: string
+  ): string[] {
+    const lang = this.editor.document.languageId;
+    const tpls = PasterConfig.getPasteBase64Template(lang);
+
+    const predefinedVars = new PredefinedVars(this.editor.document.uri);
+    predefinedVars.set("relativePath", filename);
+    predefinedVars.set("base64", base64);
+
+    return tpls.map((t) => predefinedVars.replace(t));
+  }
+
+  /**
    * Resolves the target Uri for the new image file based on selection and config.
    */
   public getImagePath(): vscode.Uri {
@@ -214,7 +231,16 @@ class PasteTarget {
     }
     return selectText;
   }
-
+  /**
+   * Returns a generated filename for Base64 pasting (doesn't require the file to be saved).
+   */
+  public getGeneratedImageFileName(): string {
+    const content = this.getSelectText();
+    const predefinedVars = new PredefinedVars(this.editor.document.uri);
+    let filename = PasterConfig.getImageFileName(content);
+    filename = predefinedVars.replace(filename);
+    return filename;
+  }
   /**
    * Inserts or replaces the current selection with the given text context.
    */
