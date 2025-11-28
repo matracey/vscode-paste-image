@@ -4,6 +4,9 @@ import * as vscode from "vscode";
 import { PasterConfig, PredefinedVars } from "./config";
 import { getShellScript, Base64TextScript } from "./shellscript";
 
+/**
+ * Encodes the relative path from the document to the pasted image, forcing `/` separators.
+ */
 function getRelativePath(
   docPath: vscode.Uri,
   imageFilePath: vscode.Uri
@@ -13,8 +16,14 @@ function getRelativePath(
   );
 }
 
+/**
+ * High-level helper that routes the clipboard image data into files and editor text.
+ */
 class Paster {
   public static async pasteImageOnWorkspace(output: vscode.Uri) {
+    /**
+     * Saves the clipboard image directly into the provided workspace URI.
+     */
     const script = (await Base64TextScript.getScript()) || getShellScript();
     try {
       const stat = await vscode.workspace.fs.stat(output);
@@ -33,6 +42,9 @@ class Paster {
     }
   }
 
+  /**
+   * Pastes the clipboard image into the active editor as a link/markup snippet.
+   */
   public static async pasteImageOnEditor() {
     const editor = vscode.window.activeTextEditor;
     if (!editor) {
@@ -60,6 +72,9 @@ class Paster {
     }
   }
 
+  /**
+   * Inserts the clipboard image as Base64 text into the active editor.
+   */
   public static async pasteBase64ImageOnEditor() {
     const editor = vscode.window.activeTextEditor;
     if (!editor) {
@@ -80,6 +95,9 @@ class Paster {
     }
   }
 
+  /**
+   * Shows an input box so the user can override the file path before saving the image.
+   */
   private static async confirmImagePath(
     imageUri: vscode.Uri
   ): Promise<vscode.Uri | undefined> {
@@ -99,6 +117,9 @@ class Paster {
     return inputVal ? vscode.Uri.file(inputVal) : undefined;
   }
 
+  /**
+   * Decodes the Base64 blob and writes it to disk via the VS Code FileSystem API.
+   */
   private static async saveImage(saveFile: vscode.Uri, base64: string) {
     try {
       const buff: Uint8Array = Buffer.from(base64, "base64");
@@ -109,6 +130,9 @@ class Paster {
   }
 }
 
+/**
+ * Encapsulates the editing context for generating image paths/text and updating selections.
+ */
 class PasteTarget {
   private editor: vscode.TextEditor;
 
@@ -116,6 +140,9 @@ class PasteTarget {
     this.editor = editor;
   }
 
+  /**
+   * Returns the configured snippet (markdown/asciidoc/etc.) for embedding the saved image.
+   */
   public getPasteImageText(imageUri: vscode.Uri): string {
     const baseUri = this.getBaseUri();
     const lang = this.editor.document.languageId;
@@ -128,6 +155,9 @@ class PasteTarget {
     return predefinedVars.replace(tpl);
   }
 
+  /**
+   * Renders the configured Base64 paste template for the active language.
+   */
   public getPasteBase64ImageText(
     imageUri: vscode.Uri,
     base64: string
@@ -144,6 +174,9 @@ class PasteTarget {
     return tpls.map((t) => predefinedVars.replace(t));
   }
 
+  /**
+   * Resolves the target Uri for the new image file based on selection and config.
+   */
   public getImagePath(): vscode.Uri {
     let baseUri = this.getBaseUri();
     baseUri = PasterConfig.getBasePath(this.editor.document.uri);
@@ -156,6 +189,9 @@ class PasteTarget {
     return vscode.Uri.joinPath(baseUri, filename);
   }
 
+  /**
+   * Ensures the active document has been saved and returns its parent directory Uri.
+   */
   public getBaseUri(): vscode.Uri {
     const baseUri = this.editor.document.uri;
     if (!baseUri || baseUri.scheme === "untitled") {
@@ -166,6 +202,9 @@ class PasteTarget {
     return vscode.Uri.joinPath(baseUri, "../");
   }
 
+  /**
+   * Validates and returns the current selection so it can be used as a filename.
+   */
   public getSelectText(): string {
     const selection = this.editor.selection;
     const selectText = this.editor.document.getText(selection);
@@ -176,6 +215,9 @@ class PasteTarget {
     return selectText;
   }
 
+  /**
+   * Inserts or replaces the current selection with the given text context.
+   */
   public pasteText(context: string) {
     context = decodeURI(context);
     return this.editor.edit((edit) => {
@@ -189,6 +231,9 @@ class PasteTarget {
     });
   }
 
+  /**
+   * Appends the provided text at the end of the document.
+   */
   public pasteEnd(context: string) {
     return this.editor.edit((edit) => {
       const pt = new vscode.Position(this.editor.document.lineCount, 0);

@@ -3,12 +3,21 @@ import * as path from "path";
 import moment from "moment";
 import * as vscode from "vscode";
 
+/**
+ * Reads extension configuration values that control naming, paths, and templates.
+ */
 class PasterConfig {
+  /**
+   * Returns whether the user wants to confirm the saved file path before pasting.
+   */
   public static useFilePathConfirm(): boolean {
     return vscode.workspace.getConfiguration("pasteImage")
       .showFilePathConfirmInputBox;
   }
 
+  /**
+   * Creates the file name for the pasted image using either the selection or the configured pattern.
+   */
   public static getImageFileName(
     selectText: string,
     extension: string = ".png"
@@ -21,7 +30,9 @@ class PasterConfig {
     return selectText + extension;
   }
 
-  // get image destination path
+  /**
+   * Resolves the destination directory that stores pasted images.
+   */
   public static getBasePath(uri: vscode.Uri): vscode.Uri {
     let savefolder = vscode.workspace.getConfiguration("pasteImage").path;
     savefolder = new PredefinedVars(uri).replace(savefolder).trim();
@@ -31,6 +42,9 @@ class PasterConfig {
     return vscode.Uri.joinPath(uri, "../", savefolder);
   }
 
+  /**
+   * Returns the template used when inserting an image link for the current language.
+   */
   public static getPasteTemplate(languageId: string): string {
     let tpls: Map<string, string> = new Map();
     tpls.set("markdown", "![](${relativePath})");
@@ -45,6 +59,9 @@ class PasterConfig {
     return tpl ? tpl : "${relativePath}";
   }
 
+  /**
+   * Returns the template lines used when inserting Base64 inline images.
+   */
   public static getPasteBase64Template(languageId: string): string[] {
     let tpls: Map<string, string[]> = new Map();
     tpls.set("markdown", [
@@ -63,9 +80,15 @@ class PasterConfig {
   }
 }
 
+/**
+ * Tracks replacement variables derived from the current document/selection.
+ */
 class PredefinedVars {
   private replaceMap: Map<string, string> = new Map();
 
+  /**
+   * Captures metadata for the provided URI (workspace roots, directories, filenames).
+   */
   public constructor(current: vscode.Uri) {
     this.replaceMap = new Map();
     if (
@@ -91,6 +114,9 @@ class PredefinedVars {
     }
   }
 
+  /**
+   * Applies all captured variables to the input string and normalizes slashes.
+   */
   public replace(str: String) {
     this.replaceMap.forEach((val, key) => {
       str = str.replace(key, val);
@@ -99,6 +125,9 @@ class PredefinedVars {
     return str.replace(/\\/g, "/");
   }
 
+  /**
+   * Stores a replacement mapping keyed by `${key}` to be used by `replace`.
+   */
   public set(key: string, val: string) {
     this.replaceMap.set("${" + key + "}", val);
   }

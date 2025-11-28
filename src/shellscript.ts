@@ -3,6 +3,10 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { spawn, ChildProcess } from "child_process";
 
+/**
+ * Runs the specified shell with the provided args and returns the combined stdout.
+ * Rejects if the process exits with a non-zero code or emits stderr data.
+ */
 function executeCommand(shell: string, options: string[]): Promise<string> {
   return new Promise((resolve, reject) => {
     let stdout = "";
@@ -28,6 +32,10 @@ function executeCommand(shell: string, options: string[]): Promise<string> {
   });
 }
 
+/**
+ * Picks the correct platform-specific clipboard script runner.
+ * Defaults to the Linux implementation when the platform is unrecognized.
+ */
 function getShellScript(): ScriptRunner {
   switch (process.platform) {
     case "win32":
@@ -40,11 +48,17 @@ function getShellScript(): ScriptRunner {
   return new LinuxScript();
 }
 
+/**
+ * Defines how clipboard helpers expose Base64 payloads and a way to invoke their scripts.
+ */
 interface ScriptRunner {
   getBase64Image(): Promise<string>;
   runScript(script: string, parameters: string[]): Promise<string>;
 }
 
+/**
+ * Uses the bundled PowerShell script to copy the clipboard image into Base64 on Windows.
+ */
 class Win32Script implements ScriptRunner {
   public async getBase64Image() {
     const script = "win32.ps1";
@@ -86,6 +100,9 @@ class Win32Script implements ScriptRunner {
   }
 }
 
+/**
+ * Runs the linux.sh helper to capture clipboard images via xclip on Linux.
+ */
 class LinuxScript implements ScriptRunner {
   public async getBase64Image() {
     const script = "linux.sh";
@@ -120,6 +137,9 @@ class LinuxScript implements ScriptRunner {
   }
 }
 
+/**
+ * Runs the mac.sh helper to capture clipboard images via pngpaste on macOS.
+ */
 class MacScript implements ScriptRunner {
   public async getBase64Image() {
     const script = "mac.sh";
@@ -154,6 +174,10 @@ class MacScript implements ScriptRunner {
   }
 }
 
+/**
+ * Handles clipboard contents that already contain a Base64-encoded image string.
+ * Falls back before shell-specific scripts so the lightweight path can be reused for paste-from-text flows.
+ */
 class Base64TextScript implements ScriptRunner {
   public static async getScript() {
     return !!(await vscode.env.clipboard.readText())
@@ -162,6 +186,9 @@ class Base64TextScript implements ScriptRunner {
   }
 
   public async getBase64Image() {
+    /**
+     * Removes whitespace and optional data URIs, then validates against a Base64 pattern.
+     */
     const base64regex =
       /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
     let base64 = await this.runScript("", []);
