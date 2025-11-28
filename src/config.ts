@@ -38,7 +38,7 @@ class PasterConfig {
 
     let tpl: string | undefined;
     tpls.forEach((val, key) => {
-      if (key == languageId) {
+      if (key === languageId) {
         tpl = val;
       }
     });
@@ -55,7 +55,7 @@ class PasterConfig {
 
     let tpl: string[] | undefined;
     tpls.forEach((val, key) => {
-      if (key == languageId) {
+      if (key === languageId) {
         tpl = val;
       }
     });
